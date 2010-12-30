@@ -33,7 +33,7 @@ var CodeExpression = (function(){
 
 	function Token(content, type)
 	{
-		this.content = ''+content;
+		this.content = content;
 		this.type = type;
 	}
 
