@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="../js/CodeExpression.js"></script>
+		<script src="../js/CE.JavaScript.js"></script>
+		<script>
+function highlightSyntax(code)
+{
+	var expr = new CodeExpression(code, 'JavaScript'), str = '';
+	for (var i=0; i<expr.length; i++)
+		str += '<span class="' + expr[i].type + '">' + expr[i].content + '</span>';
+	document.getElementById('results').innerHTML = str;
+	document.getElementById('results').className = 'JavaScript';
+}
+		</script>
+		<style>
+
+#in
+{
+	display: block;
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+	height: 200px;
+}
+
+#results
+{
+	display: block;
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+	whitespace: nowrap;
+}
+
+.Identifier
+{
+	color: darkblue;
+}
+
+.ReservedWord, .KeyWord, .FutureWord
+{
+	font-weight: bold;
+}
+
+.KeyWord, .FutureWord
+{
+	background-color: red;
+}
+		</style>
+	</head>
+	<body>
+		<textarea id="in" onchange="highlightSyntax(this.value)"></textarea>
+		<div id="results"></div>
+	</body>
+</html>
