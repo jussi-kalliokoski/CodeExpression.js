@@ -28,7 +28,7 @@ var CodeExpression = (function(){
 			left = left.substr(token.length);
 			tokens.push(new Token(token, tokentype));
 		}
-		return new CodeExpression(tokens);
+		return new CodeExpression(tokens, checks.name);
 	}
 
 	function Token(content, type)
@@ -56,6 +56,7 @@ var CodeExpression = (function(){
 			return tokenizeMath(arg1, CodeExpression.languages[arg2]);
 		else if (arg1.constructor !== Array)
 			throw 'Invalid arguments';
+		this.type = arg2;
 		var i, length = arg1.length;
 		for (i=0; i<length; i++)
 			this[i] = arg1[i];
