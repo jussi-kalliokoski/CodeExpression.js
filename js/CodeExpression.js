@@ -3,11 +3,12 @@ var CodeExpression = (function(){
 
 	function tokenizeMath(str, checks)
 	{
-		var left = str, tokens = [], token, tokentype, stuck = 0, i, n;
+		var left = str, tokens = [], token, tokentype, stuck = 0, i, n, cont;
 		while(left.length)
 		{
 			if (stuck++ > str.length) throw('Error in tokenizing string at '+getLineAndCol(str.length - left.length, str));
 			token = '';
+			cont = false;
 			for (i=0; i<checks.length && !token; i++)
 			{
 				token = checks[i](left, str);
@@ -18,7 +19,7 @@ var CodeExpression = (function(){
 						left = left.substr(token[n].content.length);
 						tokens.push(new Token(token[n].content, token[n].type));
 					}
-					continue;
+					cont = true;
 				}
 				else if (token && token.type)
 				{
@@ -31,9 +32,11 @@ var CodeExpression = (function(){
 			}
 			if (!token)
 			{
-				token = 'ILLEGAL';
+				token = left[0];
 				tokentype = 'ILLEGAL';
 			}
+			if (cont)
+				continue;
 			left = left.substr(token.length);
 			tokens.push(new Token(token, tokentype));
 		}

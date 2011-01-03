@@ -42,7 +42,7 @@ function htmlentities(str) // How original, and how untrue.
 	font-family: monospace;
 }
 
-.Identifier, .EndTag
+.Identifier, .TagName, .TagStart, .TagOpener, .TagCloser, .TagCancel
 {
 	color: darkblue;
 }
@@ -57,7 +57,7 @@ function htmlentities(str) // How original, and how untrue.
 	background-color: red;
 }
 
-.String, .StartTag
+.String
 {
 	color: darkgreen;
 }
@@ -71,6 +71,18 @@ function htmlentities(str) // How original, and how untrue.
 .RegExp
 {
 	text-decoration: underline;
+}
+
+.AttributeName, .AttributeOperator
+{
+	color: darkgreen;
+	font-weight: bold;
+}
+
+.AttributeValue
+{
+	color: darkred;
+	font-weight: bold;
 }
 		</style>
 	</head>
