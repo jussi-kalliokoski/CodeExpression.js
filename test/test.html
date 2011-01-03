@@ -8,9 +8,16 @@ function highlightSyntax(code)
 {
 	var expr = new CodeExpression(code, 'JavaScript'), str = '';
 	for (var i=0; i<expr.length; i++)
-		str += '<span class="' + expr[i].type + '">' + expr[i].content + '</span>';
+		str += '<span class="' + expr[i].type + '">' + htmlentities(expr[i].content) + '</span>';
 	document.getElementById('results').innerHTML = str;
 	document.getElementById('results').className = 'JavaScript';
+}
+
+function htmlentities(str) // How original, and how untrue.
+{
+	return str
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;');
 }
 		</script>
 		<style>
@@ -30,7 +37,7 @@ function highlightSyntax(code)
 	width: 80%;
 	margin-left: auto;
 	margin-right: auto;
-	whitespace: nowrap;
+	white-space: pre-wrap;
 }
 
 .Identifier
@@ -46,6 +53,22 @@ function highlightSyntax(code)
 .KeyWord, .FutureWord
 {
 	background-color: red;
+}
+
+.String
+{
+	color: darkgreen;
+}
+
+.Comment
+{
+	color: darkgray;
+	text-decoration: italics;
+}
+
+.RegExp
+{
+	text-decoration: underline;
 }
 		</style>
 	</head>
