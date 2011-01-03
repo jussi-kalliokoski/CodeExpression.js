@@ -49,8 +49,13 @@
 
 	function chopStartTag(token)
 	{
-		var tokens = [];
-		
+		var tokens = [new Token('<', 'TagOpener')];
+		token.replace(startTag, function(tag, tagname, end){
+			tokens.push(new Token(tagname, 'TagName'));
+			end.replace(attrib, function(attr, name){
+				var value = arguments[2] ? arguments[2] : arguments[3] ? arguments[3] : arguments[4] ? arguments[4] : '';
+			});
+		});
 		return token;
 	}
 
