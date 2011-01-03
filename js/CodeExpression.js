@@ -3,7 +3,7 @@ var CodeExpression = (function(){
 
 	function tokenizeMath(str, checks)
 	{
-		var left = str, tokens = [], token, tokentype, stuck = 0, i;
+		var left = str, tokens = [], token, tokentype, stuck = 0, i, n;
 		while(left.length)
 		{
 			if (stuck++ > str.length) throw('Error in tokenizing string at '+getLineAndCol(str.length - left.length, str));
@@ -11,7 +11,16 @@ var CodeExpression = (function(){
 			for (i=0; i<checks.length && !token; i++)
 			{
 				token = checks[i](left, str);
-				if (token && token.type)
+				if (token && token.constructor === Array)
+				{ // What an ugly mess, it's vomiting multiple tokens at us. I guess it's XML. Pucker up and take it with a smile.
+					for (n=0; n<token.length; n++)
+					{
+						left = left.substr(token[n].content.length);
+						tokens.push(new Token(token[n].content, token[n].type));
+					}
+					continue;
+				}
+				else if (token && token.type)
 				{
 					tokentype = token.type;
 					token = token.content;
@@ -35,6 +44,7 @@ var CodeExpression = (function(){
 	{
 		this.content = content;
 		this.type = type;
+		this.toString = function(){ return this.content; };
 	}
 
 	function devourToken(string, reg, length)

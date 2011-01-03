@@ -3,14 +3,15 @@
 	<head>
 		<script src="../js/CodeExpression.js"></script>
 		<script src="../js/CE.JavaScript.js"></script>
+		<script src="../js/CE.HTML.js"></script>
 		<script>
 function highlightSyntax(code)
 {
-	var expr = new CodeExpression(code, 'JavaScript'), str = '';
+	var expr = new CodeExpression(code, document.getElementById('lang').value), str = '';
 	for (var i=0; i<expr.length; i++)
 		str += '<span class="' + expr[i].type + '">' + htmlentities(expr[i].content) + '</span>';
 	document.getElementById('results').innerHTML = str;
-	document.getElementById('results').className = 'JavaScript';
+	document.getElementById('results').className = document.getElementById('lang').value;
 }
 
 function htmlentities(str) // How original, and how untrue.
@@ -38,9 +39,10 @@ function htmlentities(str) // How original, and how untrue.
 	margin-left: auto;
 	margin-right: auto;
 	white-space: pre-wrap;
+	font-family: monospace;
 }
 
-.Identifier
+.Identifier, .EndTag
 {
 	color: darkblue;
 }
@@ -55,7 +57,7 @@ function htmlentities(str) // How original, and how untrue.
 	background-color: red;
 }
 
-.String
+.String, .StartTag
 {
 	color: darkgreen;
 }
@@ -73,7 +75,13 @@ function htmlentities(str) // How original, and how untrue.
 		</style>
 	</head>
 	<body>
-		<textarea id="in" onchange="highlightSyntax(this.value)"></textarea>
+		<textarea id="in"></textarea>
+		<select id="lang">
+			<script>
+				for(var x in CodeExpression.languages) document.write('<option value="'+x+'">'+x+'</option>');
+			</script>
+		</select>
+		<button onclick="highlightSyntax(document.getElementById('in').value)">Do syntax highlighting</button>
 		<div id="results"></div>
 	</body>
 </html>
