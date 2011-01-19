@@ -7,6 +7,12 @@
 		reservedWords			= ['boolean', 'break', 'byte', 'case', 'catch', 'char', 'continue', 'default', 'delete', 'do', 'double', 'else', 'false', 'final', 'finally', 'float', 'for', 'function', 'if', 'in', 'instanceof', 'int', 'long', 'new', 'null', 'return', 'short', 'switch', 'this', 'throw', 'true', 'try', 'typeof', 'var', 'void', 'while', 'with'],
 		keyWords			= ['abstract', 'debugger', 'enum', 'goto', 'implements', 'native', 'protected', 'synchronized', 'throws', 'transient', 'volatile'],
 		futureWords			= ['as', 'class', 'export', 'extends', 'import', 'interface', 'is', 'namespace', 'package', 'private', 'public', 'static', 'super', 'use'],
+		constructorWords		= ['Function', 'Object', 'Number', 'Date', 'String', 'RegExp', 'Array', 'Error', 'EvalError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', 'URIError', 'Int8Array', 'Int16Array', 'Uint16Array', 'Int32Array', 'Float32Array', 'Float64Array'],
+		predefinedWords			= ['undefined', 'null', 'infinity', 'Math', 'JSON'],
+		predefinedFunctions		= ['eval', 'parseInt', 'parseFloat', 'isNaN', 'isFinite'],
+		namedWords			= [reservedWords, keyWords, futureWords, constructorWords, predefinedWords, predefinedFunctions],
+		namedWordNames			= ['ReservedWord', 'KeyWord', 'FutureWord', 'ConstructorWord', 'PredefinedWord', 'PredefinedFunctionWord'],
+		
 		operators			= [ '{}()[].;,<>+-*%&|^!~?:=/',
 							['<=', '>=', '==', '!=', '++', '--', '<<', '>>', '&&', '||', '+=', '-=', '*=', '%=', '&=', '|=', '^=', '/='],
 							['===', '!==', '>>>', '<<=', '>>='], ['>>>=']],
@@ -81,17 +87,18 @@
 		if (left.search(identifierBeginsWith) !== 0){
 			return;
 		}
-		var tok = devourToken(left, identifierContinuesWith), r = {content: tok};
-		if (isIn(tok, reservedWords)){
-			r.type = 'ReservedWord';
-		} else if (isIn(tok, keyWords)){
-			r.type = 'KeyWord';
-		} else if (isIn(tok, futureWords)){
-			r.type = 'FutureWord';
-		} else{
-			return tok;
+		var	tok	= devourToken(left, identifierContinuesWith),
+			i;
+		for (i=0; i < namedWords.length; i++){
+			if (isIn(tok, namedWords[i])){
+				return {
+					content: tok,
+					type: 'Word',
+					subtype: namedWordNames[i]
+				};
+			}
 		}
-		return r;
+		return tok;
 	});
 
 	JS.addRule('Hexadecimal', function(left, str){

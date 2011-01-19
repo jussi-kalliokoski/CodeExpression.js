@@ -1,8 +1,9 @@
 var CodeExpression = (function(){
 
-	function Token(content, type){
+	function Token(content, type, subtype){
 		this.content = content;
 		this.type = type;
+		this.subtype = subtype;
 		this.toString = function(){
 			return this.content;
 		};
@@ -46,7 +47,7 @@ var CodeExpression = (function(){
 	function tokenizeMath(str, checks){
 		var	left		= str,
 			tokens		= [],
-			token, tokentype,
+			token, tokentype, tokensub,
 			stuck		= 0,
 			i, n, cont;
 		while(left.length){
@@ -54,17 +55,19 @@ var CodeExpression = (function(){
 				throw('Error in tokenizing string at ' + getLineAndCol(str.length - left.length, str) );
 			}
 			token = '';
+			tokensub = undefined;
 			cont = false;
 			for (i=0; i<checks.length && !token; i++){
 				token = checks[i](left, str);
 				if (token && token.constructor === Array){ // What an ugly mess, it's vomiting multiple tokens at us. I guess it's XML. Pucker up and take it with a smile.
 					for (n=0; n<token.length; n++){
 						left = left.substr(token[n].content.length);
-						tokens.push(new Token(token[n].content, token[n].type));
+						tokens.push(new Token(token[n].content, token[n].type, token[n].subtype));
 					}
 					cont = true;
 				} else if (token && token.type) {
 					tokentype = token.type;
+					tokensub = token.subtype;
 					token = token.content;
 				} else {
 					tokentype = checks[i].type;
@@ -79,7 +82,7 @@ var CodeExpression = (function(){
 				continue;
 			}
 			left = left.substr(token.length);
-			tokens.push(new Token(token, tokentype));
+			tokens.push(new Token(token, tokentype, tokensub));
 		}
 		return new CodeExpression(tokens, checks.name);
 	}
