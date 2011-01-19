@@ -46,28 +46,6 @@
 	JS.addRule('RegExp', function(left, str){
 		if (left.search(crazyRegExpMatch) === 0)
 			return left.match(crazyRegExpMatch)[0];
-		/*if (left[0] !== '/') // Well I don't think this, the old way, is much better, especially considering it malfunctions.
-			return;
-		var token = left[0],
-		nextChar = '\\',
-		temp = left.substr(token.length),
-		searchQuery = /[^\/\\]/;
-		while(nextChar === '\\')
-		{
-			if (temp[0] === '\\')
-			{
-				token += '\\'+temp[1];
-				temp = temp.substr(2);
-			}
-			token += devourToken(temp, searchQuery);
-			temp = left.substr(token.length);
-			nextChar = temp[0];
-		}
-		if (left.length === token.length || token.length == 1)
-			return; // Comment, not a RegExp, or unterminated RegExp.
-		token += left[token.length];
-		token += devourToken(left.substr(token.length), /[gim]/);
-		return token;*/
 	});
 
 	JS.addRule('String', function(left, str){
@@ -153,48 +131,4 @@
 			}
 		}
 	});
-
-
-/*	JS.addRule('Operator', function(left, str){
-		if (left.search(/[!=]/) === 0)
-			return devourToken(left, /[!=]/, 1) + devourToken(left.substr(1), /=/, 2);
-	});
-
-	JS.addRule('Operator', function(left, str){
-		if (left.search(/&/) === 0)
-			return devourToken(left, /&/, 2);
-	});
-
-	JS.addRule('Operator', function(left, str){
-		if (left.search(/[|]/) === 0)
-			return devourToken(left, /[|]/, 2);
-	});
-
-	JS.addRule('Operator', function(left, str){
-		if (left.search(/[+\-*\/%]/) !== 0)
-			return;
-		var token = devourToken(left, /[+\-*\/]/, 1) + ((left.search(/[+\-]/) === 0) ? devourToken(left.substr(1), /[+\-=]/, 1) : devourToken(left.substr(1), /[=]/, 1));
-		if (token === '+-' || token === '-+')
-			return token[0];
-		return token;
-	});
-
-	JS.addRule('Operator', function(left, str){
-		if (left.search(/[?()\[\]{}\.,:;~\^]/) === 0)
-			return left[0];
-	});
-
-	JS.addRule('Operator', function(left, str){
-		if (left.search(/[<>]=/) === 0)
-			return devourToken(left, /[<>]/, 1) + '=';
-		
-	});
-
-	JS.addRule('Operator', function(left, str){
-		if (left.search(/>/) === 0)
-			return devourToken(left, />/, 3);
-		if (left.search(/</) === 0)
-			return devourToken(left, /</, 2);
-	});
-*/
 })();
