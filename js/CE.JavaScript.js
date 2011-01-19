@@ -2,10 +2,14 @@
 	var
 		identifierBeginsWith		= /[a-zA-Z_\$]/,
 		identifierContinuesWith		= /[a-zA-Z0-9_\$]/,
+		operatorMatch			= /[{}\(\)\[\]\.;,<>+\-\*%&|\^!~\?:=\/]/,
 		crazyRegExpMatch		= /\/(\\[^\x00-\x1f]|\[(\\[^\x00-\x1f]|[^\x00-\x1f\\\/])*\]|[^\x00-\x1f\\\/\[])+\/[gim]*/, //GEEZ, this is horrifying, but can't think of a better way to do this.
 		reservedWords			= ['boolean', 'break', 'byte', 'case', 'catch', 'char', 'continue', 'default', 'delete', 'do', 'double', 'else', 'false', 'final', 'finally', 'float', 'for', 'function', 'if', 'in', 'instanceof', 'int', 'long', 'new', 'null', 'return', 'short', 'switch', 'this', 'throw', 'true', 'try', 'typeof', 'var', 'void', 'while', 'with'],
 		keyWords			= ['abstract', 'debugger', 'enum', 'goto', 'implements', 'native', 'protected', 'synchronized', 'throws', 'transient', 'volatile'],
-		futureWords			= ['as', 'class', 'export', 'extends', 'import', 'interface', 'is', 'namespace', 'package', 'private', 'public', 'static', 'super', 'use'];
+		futureWords			= ['as', 'class', 'export', 'extends', 'import', 'interface', 'is', 'namespace', 'package', 'private', 'public', 'static', 'super', 'use'],
+		operators			= [ '{}()[].;,<>+-*%&|^!~?:=/',
+							['<=', '>=', '==', '!=', '++', '--', '<<', '>>', '&&', '||', '+=', '-=', '*=', '%=', '&=', '|=', '^=', '/='],
+							['===', '!==', '>>>', '<<=', '>>='], ['>>>=']];
 
 		devourToken	= CodeExpression.devourToken,
 		JS 		= CodeExpression.createLanguage('JavaScript');
@@ -138,6 +142,20 @@
 	});
 
 	JS.addRule('Operator', function(left, str){
+		if (left.search(operatorMatch) === 0){
+			var	token	= devourToken(left, operatorMatch, 4),
+				i;
+			for (i = 3; i >= 0; i--){
+				if (isIn(token, operators[i])){
+					return token;
+				}
+				token = token.substr(0, i);
+			}
+		}
+	});
+
+
+/*	JS.addRule('Operator', function(left, str){
 		if (left.search(/[!=]/) === 0)
 			return devourToken(left, /[!=]/, 1) + devourToken(left.substr(1), /=/, 2);
 	});
@@ -178,4 +196,5 @@
 		if (left.search(/</) === 0)
 			return devourToken(left, /</, 2);
 	});
+*/
 })();
