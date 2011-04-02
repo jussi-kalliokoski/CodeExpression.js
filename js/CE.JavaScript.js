@@ -118,14 +118,22 @@
 	});
 
 	JS.addRule('Number', function(left, str){
-		if (left.search(/[0-9]/) === 0){
-			var tok = devourToken(left, /[0-9]/),
+		var	num	= /[0-9]/,
+			dot	= '.',
+			tok, moreLeft;
+		if (left.search(num) === 0){
+			tok = devourToken(left, num);
 			moreLeft = left.substr(tok.length);
 			
-			if (moreLeft.search(/\./) === 0){
-				tok += '.'+devourToken(moreLeft.substr(1), /[0-9]/);
+			if (moreLeft.indexOf(dot) === 0){
+				tok += dot + devourToken(moreLeft.substr(1), num);
 			}
 			return tok;
+		} else if (left.indexOf(dot) === 0) {
+			tok = dot + devourToken(left.substr(1), num);
+			if (tok.length > 1){
+				return tok;
+			}
 		}
 	});
 
