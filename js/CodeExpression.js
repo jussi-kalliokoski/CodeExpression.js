@@ -1,14 +1,46 @@
 var CodeExpression = (function(){
 
+/**
+ * Creates a new token object.
+ *
+ * @private
+ * @constructor
+ * @this {Token}
+ * @param {String} content The data content of the Token.
+ * @param {String} type The type of the Token.
+ * @param {String} subtype (Optional) The subtype of the Token.
+*/
 	function Token(content, type, subtype){
+/**
+ * The data content of the Token.
+*/
 		this.content = content;
+/**
+ * The type of the Token.
+*/
 		this.type = type;
+/**
+ * The subtype of the Token.
+*/
 		this.subtype = subtype;
+/**
+ * Returns the string representation of the Token.
+ *
+ * @return {String} The string representation of the Token.
+*/
 		this.toString = function(){
 			return this.content;
 		};
 	}
 
+/**
+ * Returns a substring terminated either by regexp mismatch OR length match.
+ *
+ * @param {String} string The string to perform the operation on.
+ * @param {RegExp} reg The regexp to compare the character to.
+ * @param {Number} length (Optional) the maximum length of the returned string.
+ * @return {String}
+*/
 	function devourToken(string, reg, length){
 		var	str	= string,
 			ret	= '',
@@ -20,6 +52,13 @@ var CodeExpression = (function(){
 		return ret;
 	}
 
+/**
+ * Returns an object containing the line and column of a certain cursor position in a specified string.
+ *
+ * @param {number} pos The cursor position.
+ * @param {String} str The string to search from.
+ * @return {Object}
+*/
 	function getLineAndCol(pos, str){
 		var	newp	= 0,
 			p	= 0,
@@ -44,6 +83,14 @@ var CodeExpression = (function(){
 		return p;
 	}
 
+/**
+ * Chops a string into a CodeExpression with the provided checks.
+ *
+ * @private
+ * @param {String} str The string to tokenize.
+ * @param {Array} checks The checks to run to determine the type and subtype.
+ * @return {CodeExpression}
+*/
 	function tokenizeMath(str, checks){
 		var	left		= str,
 			tokens		= [],
@@ -87,6 +134,14 @@ var CodeExpression = (function(){
 		return new CodeExpression(tokens, checks.name);
 	}
 
+/**
+ * Creates a new CodeExpression object of the provided string in a provided language.
+ *
+ * @constructor
+ * @this CodeExpression
+ * @param {String} arg1 The string to convert.
+ * @param {String} arg2 The language to apply.
+*/
 	function CodeExpression(arg1, arg2){
 		if (this.constructor !== CodeExpression){
 			return new CodeExpression(arg1, arg2);
@@ -110,6 +165,11 @@ var CodeExpression = (function(){
 			}
 		});
 
+/**
+ * Returns a string representation of the CodeExpression object.
+ *
+ * @return {String} A string representation of the CodeExpression object.
+*/
 		this.toString = function(){
 			var i, s = [];
 			for (i=0; i<length; i++){
@@ -119,8 +179,18 @@ var CodeExpression = (function(){
 		};
 	}
 
+/**
+ * Creates a new Language object.
+ *
+ * @constructor
+ * @this {Language}
+ * @param {String} name The name of the language.
+*/
 	function Language(name){
 		var l = [];
+/**
+ * Adds a new rule to the language's ruleset.
+*/
 		l.addRule = function(type, rule){
 			rule.type = type;
 			this.push(rule);
@@ -132,6 +202,12 @@ var CodeExpression = (function(){
 	CodeExpression.name = 'CodeExpression';
 	CodeExpression.languages = {};
 	CodeExpression.devourToken = devourToken;
+/**
+ * Creates a new Language object and attaches it to CodeExpression.
+ *
+ * @param {String} name The name of the language.
+ * @return {Language}
+*/
 	CodeExpression.createLanguage = function(name){
 		return ( CodeExpression.languages[name] = Language(name) );
 	};
