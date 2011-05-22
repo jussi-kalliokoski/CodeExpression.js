@@ -1,21 +1,22 @@
 (function(CodeExpression){
 	var
-		operatorMatch			= /[{}\(\)\[\]\.;,<>+\-\*%&|\^!~\?:=\/]/,
 		reservedWords			= ['boolean', 'break', 'byte', 'case', 'catch', 'char', 'continue', 'default', 'delete', 'do', 'double', 'else', 'false', 'final', 'finally', 'float', 'for', 'function', 'if', 'in', 'instanceof', 'int', 'long', 'new', 'null', 'return', 'short', 'switch', 'this', 'throw', 'true', 'try', 'typeof', 'var', 'void', 'while', 'with'],
 		keyWords			= ['abstract', 'debugger', 'enum', 'goto', 'implements', 'native', 'protected', 'synchronized', 'throws', 'transient', 'volatile'],
 		futureWords			= ['as', 'class', 'export', 'extends', 'import', 'interface', 'is', 'namespace', 'package', 'private', 'public', 'static', 'super', 'use'],
 		constructorWords		= ['Function', 'Object', 'Number', 'Date', 'String', 'RegExp', 'Array', 'Error', 'EvalError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', 'URIError', 'Int8Array', 'Int16Array', 'Uint16Array', 'Int32Array', 'Float32Array', 'Float64Array'],
 		predefinedWords			= ['undefined', 'null', 'infinity', 'Math', 'JSON'],
 		predefinedFunctions		= ['eval', 'parseInt', 'parseFloat', 'isNaN', 'isFinite'],
-		namedWords			= [reservedWords, keyWords, futureWords, constructorWords, predefinedWords, predefinedFunctions],
-		namedWordNames			= ['ReservedWord', 'KeyWord', 'FutureWord', 'ConstructorWord', 'PredefinedWord', 'PredefinedFunctionWord'],
-		
-		operators			= [ '{}()[].;,<>+-*%&|^!~?:=/',
-							['<=', '>=', '==', '!=', '++', '--', '<<', '>>', '&&', '||', '+=', '-=', '*=', '%=', '&=', '|=', '^=', '/='],
-							['===', '!==', '>>>', '<<=', '>>='], ['>>>=']],
 
 		devourToken			= CodeExpression.devourToken,
 		JS				= CodeExpression.createLanguage('JavaScript');
+
+	JS.parser.operator	= /[{}\(\)\[\]\.;,<>+\-\*%&|\^!~\?:=\/]/;
+	JS.parser.operator.list = [ '{}()[].;,<>+-*%&|^!~?:=/',
+					['<=', '>=', '==', '!=', '++', '--', '<<', '>>', '&&', '||', '+=', '-=', '*=', '%=', '&=', '|=', '^=', '/='],
+					['===', '!==', '>>>', '<<=', '>>='], ['>>>=']];
+	JS.parser.identifier	= /^[a-z_\$][a-z_\$0-9]*/i;
+	JS.parser.identifier.namedWords = [reservedWords, keyWords, futureWords, constructorWords, predefinedWords, predefinedFunctions];
+	JS.parser.identifier.namedWordNames = ['ReservedWord', 'KeyWord', 'FutureWord', 'ConstructorWord', 'PredefinedWord', 'PredefinedFunctionWord'];
 
 	function isIn(needle, haystack){
 		var i, l = haystack.length;
@@ -62,15 +63,15 @@
 	});
 
 	JS.addRule('Identifier', function(left, str, i){
-		str = /^[a-z_\$][a-z_\$0-9]*/i.exec(left);
+		str = JS.parser.identifier.exec(left);
 		if (str){
 			str = str[0];
-			for (i=0; i < namedWords.length; i++){
-				if (isIn(str, namedWords[i])){
+			for (i=0; i < JS.parser.identifier.namedWords.length; i++){
+				if (isIn(str, JS.parser.identifier.namedWords[i])){
 					return {
 						content: str,
 						type: 'Word',
-						subtype: namedWordNames[i]
+						subtype: JS.parser.identifier.namedWordNames[i]
 					};
 				}
 			}
@@ -82,16 +83,18 @@
 
 	JS.parser('Octal', /^0[0-7]+/);
 
+	JS.parser('Degal', /^(0|([1-9][0-9]*))e[0-9]+/i);
+
 	JS.parser('Number', /^(0?\.[0-9]+)|^([1-9][0-9]*(\.[0-9]+)?)|^0/);
 
 	JS.parser('Whitespace', /^[\n\t\r ]/);
 
 	JS.addRule('Operator', function(left, str){
-		if (left.search(operatorMatch) === 0){
-			var	token	= devourToken(left, operatorMatch, 4),
+		if (left.search(JS.parser.operator) === 0){
+			var	token	= devourToken(left, JS.parser.operator, 4),
 				i;
 			for (i = 3; i >= 0; i--){
-				if (isIn(token, operators[i])){
+				if (isIn(token, JS.parser.operator.list[i])){
 					return token;
 				}
 				token = token.substr(0, i);
