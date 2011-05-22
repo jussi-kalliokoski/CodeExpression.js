@@ -1,9 +1,6 @@
 (function(CodeExpression){
 	var
-		identifierBeginsWith		= /[a-zA-Z_\$]/,
-		identifierContinuesWith		= /[a-zA-Z0-9_\$]/,
 		operatorMatch			= /[{}\(\)\[\]\.;,<>+\-\*%&|\^!~\?:=\/]/,
-		crazyRegExpMatch		= /^\/(\\[^\x00-\x1f]|\[(\\[^\x00-\x1f]|[^\x00-\x1f\\\/])*\]|[^\x00-\x1f\\\/\[])+\/[gim]*/, //GEEZ, this is horrifying, but can't think of a better way to do this.
 		reservedWords			= ['boolean', 'break', 'byte', 'case', 'catch', 'char', 'continue', 'default', 'delete', 'do', 'double', 'else', 'false', 'final', 'finally', 'float', 'for', 'function', 'if', 'in', 'instanceof', 'int', 'long', 'new', 'null', 'return', 'short', 'switch', 'this', 'throw', 'true', 'try', 'typeof', 'var', 'void', 'while', 'with'],
 		keyWords			= ['abstract', 'debugger', 'enum', 'goto', 'implements', 'native', 'protected', 'synchronized', 'throws', 'transient', 'volatile'],
 		futureWords			= ['as', 'class', 'export', 'extends', 'import', 'interface', 'is', 'namespace', 'package', 'private', 'public', 'static', 'super', 'use'],
@@ -36,15 +33,9 @@
 		}
 	});
 
-	JS.addRule('Comment', function(left, str){
-		str = /^\/\/[^\n]+/.exec(left);
-		return str && str[0];
-	});
+	JS.parser('Comment', /^\/\/[^\n]+/);
 
-	JS.addRule('RegExp', function(left, str){
-		str = crazyRegExpMatch.exec(left);
-		return str && str[0];
-	});
+	JS.parser('RegExp', /^\/(\\[^\x00-\x1f]|\[(\\[^\x00-\x1f]|[^\x00-\x1f\\\/])*\]|[^\x00-\x1f\\\/\[])+\/[gim]*/);
 
 	JS.addRule('String', function(left, str){
 		if (left.search(/["']/) !== 0){
@@ -87,25 +78,13 @@
 		}
 	});
 
-	JS.addRule('Hexadecimal', function(left, str){
-		str = /^0x[0-9a-f]+/i.exec(left);
-		return str && str[0];
-	});
+	JS.parser('Hexadecimal', /^0x[0-9a-f]+/i);
 
-	JS.addRule('Octal', function(left, str){
-		str = /^0[0-7]+/.exec(left);
-		return str && str[0];
-	});
+	JS.parser('Octal', /^0[0-7]+/);
 
-	JS.addRule('Number', function(left, str){
-		str = /^(0?\.[0-9]+)|^([1-9][0-9]*(\.[0-9]+)?)|^0/.exec(left);
-		return str && str[0];
-	});
+	JS.parser('Number', /^(0?\.[0-9]+)|^([1-9][0-9]*(\.[0-9]+)?)|^0/);
 
-	JS.addRule('Whitespace', function(left, str){
-		str = /^[\n\t\r ]/.exec(left);
-		return str && str[0];
-	});
+	JS.parser('Whitespace', /^[\n\t\r ]/);
 
 	JS.addRule('Operator', function(left, str){
 		if (left.search(operatorMatch) === 0){
