@@ -187,17 +187,33 @@ var CodeExpression = (function(){
  * @param {String} name The name of the language.
 */
 	function Language(name){
-		var l = [];
+		this.name = name;
+		this.parser = function(name, parser){
+			this.addParser(name, name[0].toLowerCase() + name.substr(1), parser);
+		}
+	}
+
+	var langProto = Language.prototype = [];
 /**
  * Adds a new rule to the language's ruleset.
 */
-		l.addRule = function(type, rule){
-			rule.type = type;
-			this.push(rule);
-		};
-		l.name = name;
-		return l;
-	}
+	langProto.addRule = function(type, rule){
+		rule.type = type;
+		this.push(rule);
+	};
+/**
+ * Adds a new parser rule to the language's ruleset.
+*/
+	langProto.addParser = function(name, parserName, parser){
+		var	self	= this;
+		self.parser[parserName]	= parser;
+		self.addRule(name, function(left, str){
+			str = self.parser[parserName].exec(left);
+			return str && str[0];
+		});
+	};
+
+	
 
 	CodeExpression.name = 'CodeExpression';
 	CodeExpression.languages = {};
@@ -209,7 +225,7 @@ var CodeExpression = (function(){
  * @return {Language}
 */
 	CodeExpression.createLanguage = function(name){
-		return ( CodeExpression.languages[name] = Language(name) );
+		return ( CodeExpression.languages[name] = new Language(name) );
 	};
 
 	return CodeExpression;
