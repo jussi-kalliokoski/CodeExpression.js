@@ -3,7 +3,7 @@
 		identifierBeginsWith		= /[a-zA-Z_\$]/,
 		identifierContinuesWith		= /[a-zA-Z0-9_\$]/,
 		operatorMatch			= /[{}\(\)\[\]\.;,<>+\-\*%&|\^!~\?:=\/]/,
-		crazyRegExpMatch		= /\/(\\[^\x00-\x1f]|\[(\\[^\x00-\x1f]|[^\x00-\x1f\\\/])*\]|[^\x00-\x1f\\\/\[])+\/[gim]*/, //GEEZ, this is horrifying, but can't think of a better way to do this.
+		crazyRegExpMatch		= /^\/(\\[^\x00-\x1f]|\[(\\[^\x00-\x1f]|[^\x00-\x1f\\\/])*\]|[^\x00-\x1f\\\/\[])+\/[gim]*/, //GEEZ, this is horrifying, but can't think of a better way to do this.
 		reservedWords			= ['boolean', 'break', 'byte', 'case', 'catch', 'char', 'continue', 'default', 'delete', 'do', 'double', 'else', 'false', 'final', 'finally', 'float', 'for', 'function', 'if', 'in', 'instanceof', 'int', 'long', 'new', 'null', 'return', 'short', 'switch', 'this', 'throw', 'true', 'try', 'typeof', 'var', 'void', 'while', 'with'],
 		keyWords			= ['abstract', 'debugger', 'enum', 'goto', 'implements', 'native', 'protected', 'synchronized', 'throws', 'transient', 'volatile'],
 		futureWords			= ['as', 'class', 'export', 'extends', 'import', 'interface', 'is', 'namespace', 'package', 'private', 'public', 'static', 'super', 'use'],
@@ -30,33 +30,20 @@
 		return false;
 	}
 
-	JS.addRule('Comment', function(left, str){
-		if (left.substr(0, 2) !== '/*'){
-			return;
+	JS.addRule('Comment', function(left, str, end){
+		if (left.indexOf('/*') === 0 && (end = left.indexOf('*/')) !== -1){
+			return left.substr(0, end + 2);
 		}
-		var token = '/*',
-		temp = left.substr(2);
-		while (temp.length && temp.substr(0, 2) !== '*/'){
-			token += temp[0];
-			temp = temp.substr(1);
-		}
-		token += '*/';
-		if (token.length > left.length){
-			throw('Error: unterminated comment');
-		}
-		return token;
 	});
 
 	JS.addRule('Comment', function(left, str){
-		if (left.substr(0, 2) === '//'){
-			return devourToken(left, /[^\n]/);
-		}
+		str = /^\/\/[^\n]+/.exec(left);
+		return str && str[0];
 	});
 
 	JS.addRule('RegExp', function(left, str){
-		if (left.search(crazyRegExpMatch) === 0){
-			return left.match(crazyRegExpMatch)[0];
-		}
+		str = crazyRegExpMatch.exec(left);
+		return str && str[0];
 	});
 
 	JS.addRule('String', function(left, str){
@@ -83,64 +70,41 @@
 		return token;
 	});
 
-	JS.addRule('Identifier', function(left, str){
-		if (left.search(identifierBeginsWith) !== 0){
-			return;
-		}
-		var	tok	= devourToken(left, identifierContinuesWith),
-			i;
-		for (i=0; i < namedWords.length; i++){
-			if (isIn(tok, namedWords[i])){
-				return {
-					content: tok,
-					type: 'Word',
-					subtype: namedWordNames[i]
-				};
+	JS.addRule('Identifier', function(left, str, i){
+		str = /^[a-z_\$][a-z_\$0-9]*/i.exec(left);
+		if (str){
+			str = str[0];
+			for (i=0; i < namedWords.length; i++){
+				if (isIn(str, namedWords[i])){
+					return {
+						content: str,
+						type: 'Word',
+						subtype: namedWordNames[i]
+					};
+				}
 			}
+			return str;
 		}
-		return tok;
 	});
 
 	JS.addRule('Hexadecimal', function(left, str){
-		if (left.search(/0[xX][0-9A-Fa-f]/) === 0){
-			return '0x' + devourToken(left.substr(2), /[0-9A-Fa-f]/);
-		}
+		str = /^0x[0-9a-f]+/i.exec(left);
+		return str && str[0];
 	});
 
 	JS.addRule('Octal', function(left, str){
-		if (left.search(/0[0-7]/) === 0){
-			var token = devourToken(left, /[0-7]/);
-			if(token.length === 1){
-				return;
-			}
-			return token;
-		}
+		str = /^0[0-7]+/.exec(left);
+		return str && str[0];
 	});
 
 	JS.addRule('Number', function(left, str){
-		var	num	= /[0-9]/,
-			dot	= '.',
-			tok, moreLeft;
-		if (left.search(num) === 0){
-			tok = devourToken(left, num);
-			moreLeft = left.substr(tok.length);
-			
-			if (moreLeft.indexOf(dot) === 0){
-				tok += dot + devourToken(moreLeft.substr(1), num);
-			}
-			return tok;
-		} else if (left.indexOf(dot) === 0) {
-			tok = dot + devourToken(left.substr(1), num);
-			if (tok.length > 1){
-				return tok;
-			}
-		}
+		str = /^(0?\.[0-9]+)|^([1-9][0-9]*(\.[0-9]+)?)|^0/.exec(left);
+		return str && str[0];
 	});
 
 	JS.addRule('Whitespace', function(left, str){
-		if (left.search(/[\n\t\r ]/) === 0){
-			return devourToken(left, /[\n\t\r ]/);
-		}
+		str = /^[\n\t\r ]/.exec(left);
+		return str && str[0];
 	});
 
 	JS.addRule('Operator', function(left, str){
