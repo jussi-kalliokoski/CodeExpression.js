@@ -3,6 +3,8 @@
 		devourToken			= CodeExpression.devourToken,
 		JSON				= CodeExpression.createLanguage('JSON');
 
+	JSON.parser.operator	= /^[{}\[\]\,:]/;
+
 	function isIn(needle, haystack){
 		var i, l = haystack.length;
 		for (i=0; i<l; i++){
@@ -39,8 +41,15 @@
 
 	JSON.parser('Degal', /^(0|([1-9][0-9]*))e[0-9]+/i);
 
-	JSON.parser('Number', /^(0?\.[0-9]+)|^([1-9][0-9]*(\.[0-9]+)?)|^0/);
+	JSON.parser('Number', /^(0\.[0-9]+)|^([1-9][0-9]*(\.[0-9]+)?)|^0/);
 
 	JSON.parser('Whitespace', /^[\n\t\r ]/);
+
+	JSON.addRule('Operator', function(left){
+		left = JSON.parser.operator.exec(left);
+		if (left){
+			return left[0];
+		}
+	});
 
 }(CodeExpression));
