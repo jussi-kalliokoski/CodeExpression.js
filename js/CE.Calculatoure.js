@@ -30,10 +30,10 @@
 		str = Calc.parser.identifier.exec(left);
 		if (str){
 			str = str[0];
-			for (i=0; i < Calc.parser.operator.literals.length; i++){
-				if (str.toLowerCase() === Calc.parser.operator.literals[i]){
+			for (i=0; i < Calc.parser.operator.literal.length; i++){
+				if (str.toLowerCase() === Calc.parser.operator.literal[i]){
 					return {
-						content: str.toUpperCase(),
+						content: str,
 						type: 'Operator',
 						subtype: 'Literal'
 					};
